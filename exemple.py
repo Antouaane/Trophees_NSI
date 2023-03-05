@@ -20,7 +20,7 @@ fenetre = pygame.display.set_mode((LARGEUR,HAUTEUR))
 
 carte = pygame.image.load('map.png').convert_alpha()
 position_carte = carte.get_rect()
-position_carte.topleft = (-500, 300)
+position_carte.topleft = (-1300, -800)
 
 def menu():
     '''
@@ -28,19 +28,23 @@ def menu():
     '''
     # On prépare ensuite tout ce qu'il faut pour un menu de jeu :    
     # Définition des boutons (Position : Largeur, Hauteur / Dimensions :épaisseur, hauteur)
-    bouton_jouer = pygame.Rect(LARGEUR//2 - 250, 1.25 * (HAUTEUR//5), 500, 175)
-    bouton_aide = pygame.Rect(LARGEUR//2 - 250, 2.25 * (HAUTEUR//5), 500, 175)
-    bouton_quitter = pygame.Rect(LARGEUR//2 - 250, 3.25 * (HAUTEUR//5), 500, 175)
+    bouton_jouer = pygame.Rect(LARGEUR//2 - 250, 1.5 * (HAUTEUR//5), 500, 175)
+    bouton_aide = pygame.Rect(LARGEUR//2 - 250, 2.5 * (HAUTEUR//5), 500, 175)
+    bouton_quitter = pygame.Rect(LARGEUR//2 - 250, 3.5 * (HAUTEUR//5), 500, 175)
 
     # Définition de la police
-    police_bouton = pygame.font.SysFont('arial', 30)
+    police_bouton = pygame.font.SysFont('arial', 40, 15)
     police_titre = pygame.font.SysFont('arial', 95, 50)
 
     # Définition des couleurs
-    BLANC = (255, 255, 255)
     NOIR = (0, 0, 0)
     GRIS = (128, 128, 128)
     SANG = (191, 21, 21)
+    
+    # L'image de fond de notre menu
+    monstre_img = pygame.image.load('monstre.img.jpg').convert_alpha()
+    position_monstre_img = monstre_img.get_rect()
+    position_monstre_img.topleft = (0, 0)
     
     continuer = True
     while continuer:
@@ -55,10 +59,11 @@ def menu():
                     jeux()
                 elif bouton_aide.collidepoint(evenement.pos):
                     print("Affichage de l'aide")
+                    aide()
                 elif bouton_quitter.collidepoint(evenement.pos):
                     continuer = False
 
-        fenetre.fill(BLANC)
+        fenetre.blit(monstre_img, position_monstre_img)
 
         # On dessine les boutons
         pygame.draw.rect(fenetre, GRIS, bouton_jouer) 
@@ -72,14 +77,48 @@ def menu():
         texte_quitter = police_bouton.render("Quitter", True, NOIR)
 
         fenetre.blit(titre_menu, ((LARGEUR//2) - 350, 50))
-        fenetre.blit(texte_jouer, (bouton_jouer.x + 225, bouton_jouer.y + 25))
-        fenetre.blit(texte_aide, (bouton_aide.x + 225, bouton_aide.y + 25))
-        fenetre.blit(texte_quitter, (bouton_quitter.x + 225, bouton_quitter.y + 25))
+        fenetre.blit(texte_jouer, (bouton_jouer.x + 215, bouton_jouer.y + 60))
+        fenetre.blit(texte_aide, (bouton_aide.x + 215, bouton_aide.y + 60))
+        fenetre.blit(texte_quitter, (bouton_quitter.x + 215, bouton_quitter.y + 60))
 
         # Actualisation de l'écran
         pygame.display.flip()
 
     pygame.quit()
+
+# Consignes et aides    
+def aide():
+    while True:
+        fenetre.fill('black')
+        police_bouton = pygame.font.SysFont('arial', 50)
+        bouton_retour = pygame.Rect(LARGEUR//2 - 250, 4 * (HAUTEUR//5), 500, 175)
+        texte_retour = police_bouton.render("Retour", True, (255,255,255))
+        pygame.draw.rect(fenetre, (128, 128, 128), bouton_retour)
+        fenetre.blit(texte_retour, (bouton_retour.x + 200, bouton_retour.y + 60))
+        for evenement in pygame.event.get():
+            if evenement.type == pygame.QUIT:
+                 sys.exit()
+                 pygame.quit()
+               
+            if evenement.type == pygame.MOUSEBUTTONDOWN:
+                if bouton_retour.collidepoint(evenement.pos):
+                    menu()
+                    
+                    
+        police = pygame.font.SysFont('Arial', 60)
+        image_texte = police.render("Déplacements :", 1, (255,255,255))
+        fenetre.blit(image_texte, (LARGEUR//2 - 200, 10))
+        police_2 = pygame.font.SysFont('Arial', 50)
+        image_avancer = police_2.render("Avancer : Z", 1, (255,255,255))
+        fenetre.blit(image_avancer, (LARGEUR//2 - 150, 100))
+        image_reculer = police_2.render("Reculer : S", 1, (255,255,255))
+        fenetre.blit(image_reculer, (LARGEUR//2 - 150, 170))
+        
+                    
+        
+        
+    
+        pygame.display.flip()
     
 def jeux():
     '''
@@ -211,8 +250,8 @@ def jeux():
             self.image = pygame.image.load(sprite_1)
             self.rect = self.image.get_rect()
             self.taille = 10
-            self.x = randint(0,LARGEUR//2)
-            self.y = randint(0,HAUTEUR//2)
+            self.x = randint(0, LARGEUR)
+            self.y = randint(0, HAUTEUR)
             self.rect.topleft = [self.x,self.y]
             self.vitesse = vitesse
             self.vie = vie
@@ -319,14 +358,16 @@ def jeux():
     def defaite():
         police = pygame.font.SysFont('John Hubbard',120)
         image_texte = police.render("Game Over", 1, (255,0,50))
-        fenetre.blit(image_texte,(LARGEUR/2, HAUTEUR/2))
+        fenetre.blit(image_texte,(LARGEUR//2 - 200, HAUTEUR//2 - 60))
         pygame.display.flip()
     
     # Une fonction pour le score du joueur   
     def score(n):
         font = pygame.font.SysFont("Pixelade", 55)
-        text = font.render("Score: " + str(n), True, "white")
-        fenetre.blit(text, (20, 70))
+        score = font.render("Score : " + str(n), True, "white")
+        nbr_vague = font.render("Vague : " + str(entree_boss), True, "white")
+        fenetre.blit(score, (20, 20))
+        fenetre.blit(nbr_vague,(18, 70))
 
     # On créer notre personnage, une liste contenant les projectiles ainsi qu'un groupe de sprite qui
     # contiendra tous nos enemies
